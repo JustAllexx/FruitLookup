@@ -34,15 +34,15 @@ class FruityLookup {
         );
     }
 
-    public async Task MakeRequestAsync(String url) {
+    public async Task<Fruit?> getFruitFromUrl(String url) {
         Stream json = await client.GetStreamAsync(url);
         Fruit? fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
         if(fruit == null) {
             Console.WriteLine("Deserialising went wrong");
-            return;
+            return null;
         }
 
-        Console.Write(fruit);
+        return fruit;
     }
 }
 
@@ -51,7 +51,7 @@ class FruityLookupCLI {
     public static async Task<int> Main(String[] args) {
         FruityLookup fruityLookup = new();
         String url = "https://fruityvice.com/api/fruit/apple";
-        await fruityLookup.MakeRequestAsync(url);
+        await fruityLookup.getFruitFromUrl(url);
 
         return 0;
     }
