@@ -1,6 +1,5 @@
 ﻿using FruityLookup;
-using Newtonsoft.Json.Bson;
-using System.Threading.Tasks;
+using FruityLookup.Entities;
 
 namespace FruityLookup.Tests {
     public class InstanceTests {
