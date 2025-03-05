@@ -35,8 +35,8 @@ public record class Fruit {
 }
 
 class FruityLookup {
-    HttpClient client = new();
-    String httpsPath = "https://fruityvice.com/api/fruit/";
+    readonly HttpClient client = new();
+    readonly String httpsPath = "https://fruityvice.com/api/fruit/";
 
     public FruityLookup() {
         initialiseClient();
@@ -68,10 +68,35 @@ class FruityLookup {
 
 class FruityLookupCLI {
 
+    public static RootCommand rootCommand = new RootCommand("CLI for accessing fruit information from FruityVice");
+    public static FruityLookup fruity = new();
+
+    public static void buildCommands() {
+        var fruitListArgument = new Argument<List<String>>(
+            name: "FruitList",
+            description: "List of fruit names to lookup on FruityVice"
+            );
+
+        rootCommand.Add(fruitListArgument);
+        rootCommand.SetHandler(async (fruitList) =>
+        {
+            foreach(String fruit in fruitList) {
+                Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
+                Console.WriteLine(FruitInfo.ToString());
+            }
+        }, fruitListArgument);
+        
+    }
+
     public static async Task<int> Main(String[] args) {
+        // Debugging
         FruityLookup fruityLookup = new();
         Fruit? fruit = await fruityLookup.getFruitInformationAsync("apple");
         Console.WriteLine(fruit);
+        // ---------------------------------------------------------------------
+
+        buildCommands();
+        await rootCommand.InvokeAsync(args);
 
         return 0;
     }

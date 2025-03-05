@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FruityLookup": {
+      "commandName": "Project",
+      "commandLineArgs": "apple banana"
+    }
+  }
+}
