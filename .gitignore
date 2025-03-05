@@ -1,3 +1,6 @@
 bin/
 obj/
 .vs/
+Properties/
+FruityLookup.Tests/bin/
+FruityLookup.Tetss/obj/

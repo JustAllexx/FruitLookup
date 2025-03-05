@@ -7,6 +7,8 @@ using static System.Net.WebRequestMethods;
 using System.Globalization;
 using System.Reflection.Metadata;
 
+namespace FruityLookup;
+
 public enum OutputFormat {
     User,
     Json
@@ -14,7 +16,7 @@ public enum OutputFormat {
 
 //Two record classes needed for JSON Deserialisation
 public record class Nutrition {
-    public int? calories { get; init; }
+    public int calories { get; init; }
     public double fat { get; init; }
     public double sugar { get; init; }
     public double carbohydrates {get; init; }
@@ -22,12 +24,12 @@ public record class Nutrition {
 }
 
 public record class Fruit : IFormattable {
-    public String? name { get; init; }
-    public int? id { get; init; }
-    public String? family { get; init; }
-    public String? order { get; init; }
-    public String? genus { get; init; }
-    public Nutrition? nutritions { get; init; }
+    public required String name { get; init; }
+    public required int id { get; init; }
+    public required String family { get; init; }
+    public required String order { get; init; }
+    public required String genus { get; init; }
+    public required Nutrition nutritions { get; init; }
 
     public string ToUserString() {
 
@@ -55,7 +57,7 @@ public record class Fruit : IFormattable {
     }
 
     public string ToString(string? format, IFormatProvider? provider) {
-        if (String.IsNullOrEmpty(format)) { format = "G"; }
+        if (string.IsNullOrEmpty(format)) { format = "G"; }
         switch (format.ToUpper()) {
             case "G":
             case "US":
@@ -65,11 +67,10 @@ public record class Fruit : IFormattable {
             default:
                 throw new FormatException($"{format} is not supported inside Fruit");
         }
-
     }
 }
 
-class FruityLookup {
+public class FruityLookup {
     readonly HttpClient client = new();
     readonly String httpsPath = "https://fruityvice.com/api/fruit/";
 
@@ -103,7 +104,7 @@ class FruityLookup {
     }
 }
 
-class FruityLookupCLI {
+public class FruityLookupCLI {
 
     public static RootCommand rootCommand = new RootCommand("CLI for accessing fruit information from FruityVice");
     public static FruityLookup fruity = new();
@@ -143,7 +144,7 @@ class FruityLookupCLI {
         
     }
 
-    public static async Task<int> Main(String[] args) {
+    public static async Task<int> Main(string[] args) {
         buildCommands();
         await rootCommand.InvokeAsync(args);
 

@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="FruityLookup.Tests\**" />
+    <EmbeddedResource Remove="FruityLookup.Tests\**" />
+    <None Remove="FruityLookup.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
 
