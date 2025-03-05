@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.CommandLine;
 using static System.Net.WebRequestMethods;
+using System.Globalization;
 
 //Two record classes needed for JSON Deserialisation
 public record class Nutrition {
@@ -14,7 +15,7 @@ public record class Nutrition {
     public double protein { get; init; }
 }
 
-public record class Fruit {
+public record class Fruit : IFormattable {
     public String? name { get; init; }
     public int? id { get; init; }
     public String? family { get; init; }
@@ -22,7 +23,7 @@ public record class Fruit {
     public String? genus { get; init; }
     public Nutrition? nutritions { get; init; }
 
-    public override string ToString() {
+    public string ToUserString() {
 
         return $"""
             Name: {name}
@@ -31,6 +32,34 @@ public record class Fruit {
             Sugar: {nutritions.sugar}
             Carbohydrates: {nutritions.carbohydrates}
             """;
+    }
+
+    public string ToJsonString() {
+        return JsonSerializer.Serialize(this);
+    }
+
+    // IFormattable Fruit methods
+
+    public override string ToString() {
+        return this.ToString("US", CultureInfo.CurrentCulture);
+    }
+
+    public string ToString(string format) {
+        return this.ToString(format, CultureInfo.CurrentCulture);
+    }
+
+    public string ToString(string? format, IFormatProvider? provider) {
+        if (String.IsNullOrEmpty(format)) { format = "G"; }
+        switch (format.ToUpper()) {
+            case "G":
+            case "US":
+                return this.ToUserString();
+            case "JS":
+                return this.ToJsonString();
+            default:
+                throw new FormatException($"{format} is not supported inside Fruit");
+        }
+
     }
 }
 
@@ -85,7 +114,7 @@ class FruityLookupCLI {
             foreach(String fruit in fruitList) {
                 Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
                 //? mark just returns null if getFruitInformation can't access the fruit
-                Console.WriteLine(FruitInfo?.ToString());
+                Console.WriteLine(FruitInfo?.ToString("JS"));
             }
         }, fruitListArgument);
         
