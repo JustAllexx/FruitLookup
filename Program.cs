@@ -5,6 +5,12 @@ using System.Threading.Tasks;
 using System.CommandLine;
 using static System.Net.WebRequestMethods;
 using System.Globalization;
+using System.Reflection.Metadata;
+
+public enum OutputFormat {
+    User,
+    Json
+}
 
 //Two record classes needed for JSON Deserialisation
 public record class Nutrition {
@@ -29,8 +35,8 @@ public record class Fruit : IFormattable {
             Name: {name}
             ID: {id}
             Family: {family}
-            Sugar: {nutritions.sugar}
-            Carbohydrates: {nutritions.carbohydrates}
+            Sugar: {nutritions.sugar}g
+            Carbohydrates: {nutritions.carbohydrates}g
             """;
     }
 
@@ -104,29 +110,40 @@ class FruityLookupCLI {
 
     public static void buildCommands() {
         var fruitListArgument = new Argument<List<String>>(
-            name: "FruitList",
+            name: "Fruit List",
             description: "List of fruit names to lookup on FruityVice"
             );
 
+        var formatOption = new Option<OutputFormat>(
+            name: "--format",
+            description: "What format to output the fruits with",
+            getDefaultValue: () => OutputFormat.User
+        );
+
         rootCommand.Add(fruitListArgument);
-        rootCommand.SetHandler(async (fruitList) =>
+        rootCommand.AddGlobalOption(formatOption);
+        rootCommand.SetHandler(async (fruitList, format) =>
         {
-            foreach(String fruit in fruitList) {
+            foreach (String fruit in fruitList) {
                 Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
-                //? mark just returns null if getFruitInformation can't access the fruit
-                Console.WriteLine(FruitInfo?.ToString("JS"));
+                switch(format) {
+                    case OutputFormat.User:
+                        //? mark just returns null if getFruitInformation can't access the fruit
+                        Console.WriteLine(FruitInfo?.ToString("US"));
+                        break;
+                    case OutputFormat.Json:
+                        Console.WriteLine(FruitInfo?.ToString("JS"));
+                        break;
+                    default:
+                        Console.WriteLine("Formatting option not recognised!");
+                        return;
+                }
             }
-        }, fruitListArgument);
+        }, fruitListArgument, formatOption);
         
     }
 
     public static async Task<int> Main(String[] args) {
-        // Debugging
-        FruityLookup fruityLookup = new();
-        Fruit? fruit = await fruityLookup.getFruitInformationAsync("apple");
-        Console.WriteLine(fruit);
-        // ---------------------------------------------------------------------
-
         buildCommands();
         await rootCommand.InvokeAsync(args);
 
