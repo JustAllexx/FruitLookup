@@ -43,15 +43,17 @@ class FruityLookup {
     }
 
     public async Task<Fruit?> getFruitInformationAsync(String fruitName) {
-        String url = getFruitUrl(fruitName);
-        Stream json = await client.GetStreamAsync(url);
-        Fruit? fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
-        if(fruit == null) {
-            Console.WriteLine("Deserialising went wrong");
-            return null;
+        try {
+            String url = getFruitUrl(fruitName);
+            Stream json = await client.GetStreamAsync(url);
+            Fruit? fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
+            return fruit;
+        }
+        catch (HttpRequestException ex) {
+            Console.WriteLine($"Request failed with error code: {ex.StatusCode}");
         }
 
-        return fruit;
+        return null;
     }
 
     private void initialiseClient() {
@@ -82,7 +84,8 @@ class FruityLookupCLI {
         {
             foreach(String fruit in fruitList) {
                 Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
-                Console.WriteLine(FruitInfo.ToString());
+                //? mark just returns null if getFruitInformation can't access the fruit
+                Console.WriteLine(FruitInfo?.ToString());
             }
         }, fruitListArgument);
         
