@@ -51,7 +51,7 @@ public class FruityLookupCLI {
     public static FruityLookup fruity = new();
 
     public static void buildCommands() {
-        var fruitListArgument = new Argument<List<String>>(
+        var fruitListArgument = new Argument<List<string>>(
             name: "Fruit List",
             description: "List of fruit names to lookup on FruityVice"
             );
@@ -61,27 +61,39 @@ public class FruityLookupCLI {
             description: "What format to output the fruits with",
             getDefaultValue: () => OutputFormat.User
         );
+        var outputFileOption = new Option<string>(
+            name: "--output",
+            description: "Where to save output on disk",
+            getDefaultValue: () => ""
+        );
 
         rootCommand.Add(fruitListArgument);
         rootCommand.AddGlobalOption(formatOption);
-        rootCommand.SetHandler(async (fruitList, format) =>
+        rootCommand.AddOption(outputFileOption);
+        rootCommand.SetHandler(async (fruitList, format, outputFile) =>
         {
-            foreach (String fruit in fruitList) {
-                Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
-                switch(format) {
-                    case OutputFormat.User:
-                        //? mark just returns null if getFruitInformation can't access the fruit
-                        Console.WriteLine(FruitInfo?.ToString("US"));
-                        break;
-                    case OutputFormat.Json:
-                        Console.WriteLine(FruitInfo?.ToString("JS"));
-                        break;
-                    default:
-                        Console.WriteLine("Formatting option not recognised!");
-                        return;
+            using (StreamWriter sw = new StreamWriter("output.txt")) {
+                if (!string.IsNullOrEmpty(outputFile)) {
+                    string currentDirectory = Directory.GetCurrentDirectory();
+                    string outputPath = Path.Combine(currentDirectory, outputFile);
+                    Console.SetOut(sw);
+                }
+                foreach (String fruit in fruitList) {
+                    Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
+                    switch (format) {
+                        case OutputFormat.User:
+                            Console.WriteLine(FruitInfo?.ToString("US"));
+                            break;
+                        case OutputFormat.Json:
+                            Console.WriteLine(FruitInfo?.ToString("JS"));
+                            break;
+                        default:
+                            Console.WriteLine("Formatting option not recognised!");
+                            return;
+                    }
                 }
             }
-        }, fruitListArgument, formatOption);
+        }, fruitListArgument, formatOption, outputFileOption);
         
     }
 
