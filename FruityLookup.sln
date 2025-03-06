@@ -13,6 +13,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FruityLookup", "FruityLookup\FruityLookup.csproj", "{C4CDA635-21F2-A11A-414C-387E8C0D03CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FruityLookup.CLI", "FruityLookup.CLI\FruityLookup.CLI.csproj", "{E95E6448-0997-4587-8363-E58DA6A8EDE7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0668A6A5-3002-4915-AD10-B039F88EB138} = {0668A6A5-3002-4915-AD10-B039F88EB138}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FruityLookup.GUI", "FruityLookup.GUI\FruityLookup.GUI.csproj", "{0668A6A5-3002-4915-AD10-B039F88EB138}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +37,11 @@ Global
 		{E95E6448-0997-4587-8363-E58DA6A8EDE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E95E6448-0997-4587-8363-E58DA6A8EDE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E95E6448-0997-4587-8363-E58DA6A8EDE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0668A6A5-3002-4915-AD10-B039F88EB138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0668A6A5-3002-4915-AD10-B039F88EB138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0668A6A5-3002-4915-AD10-B039F88EB138}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{0668A6A5-3002-4915-AD10-B039F88EB138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0668A6A5-3002-4915-AD10-B039F88EB138}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

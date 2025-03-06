@@ -82,8 +82,11 @@ public class FruityLookupCLI {
     /// <param name="args">The Command Line arguments to be processed</param>
     /// <returns></returns>
     public static async Task<int> Main(string[] args) {
+        
+
         buildCommands();
         await rootCommand.InvokeAsync(args);
+        
 
         return 0;
     }
