@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FruityLookup.csproj" />
+    <ProjectReference Include="..\FruityLookup\FruityLookup.csproj" />
   </ItemGroup>
 
   <ItemGroup>
