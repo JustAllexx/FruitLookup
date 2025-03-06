@@ -38,62 +38,70 @@ public class FruityLookup {
         client.DefaultRequestHeaders.Accept.Add(
             new MediaTypeWithQualityHeaderValue("application/json")
         );
+        
     }
 
-    private String getFruitUrl(String fruit) {
+    private string getFruitUrl(string fruit) {
         return httpsPath + fruit;
     }
 }
 
 public class FruityLookupCLI {
 
-    public static RootCommand rootCommand = new RootCommand("CLI for accessing fruit information from FruityVice");
-    public static FruityLookup fruity = new();
+    private readonly static RootCommand rootCommand = new RootCommand("CLI for accessing fruit information from FruityVice");
+    private readonly static FruityLookup fruity = new();
+
+    private static async Task rootCommandHandler(List<string> fruitList, OutputFormat format, string outputFile) {
+        using (StreamWriter sw = new StreamWriter("output.txt")) {
+            if (!string.IsNullOrEmpty(outputFile)) {
+                string currentDirectory = Directory.GetCurrentDirectory();
+                string outputPath = Path.Combine(currentDirectory, outputFile);
+                Console.SetOut(sw);
+            }
+            foreach (String fruit in fruitList) {
+                Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
+                switch (format) {
+                    case OutputFormat.User:
+                        Console.WriteLine(FruitInfo?.ToString("US"));
+                        break;
+                    case OutputFormat.Json:
+                        Console.WriteLine(FruitInfo?.ToString("JS"));
+                        break;
+                    default:
+                        Console.WriteLine("Formatting option not recognised!");
+                        return;
+                }
+            }
+        }
+    }
 
     public static void buildCommands() {
+        // Creates argument builders for the root command
         var fruitListArgument = new Argument<List<string>>(
             name: "Fruit List",
             description: "List of fruit names to lookup on FruityVice"
             );
+        
 
         var formatOption = new Option<OutputFormat>(
             name: "--format",
             description: "What format to output the fruits with",
             getDefaultValue: () => OutputFormat.User
         );
+        formatOption.AddAlias("-f");
+
         var outputFileOption = new Option<string>(
             name: "--output",
             description: "Where to save output on disk",
             getDefaultValue: () => ""
         );
+        outputFileOption.AddAlias("-o");
 
         rootCommand.Add(fruitListArgument);
         rootCommand.AddGlobalOption(formatOption);
         rootCommand.AddOption(outputFileOption);
-        rootCommand.SetHandler(async (fruitList, format, outputFile) =>
-        {
-            using (StreamWriter sw = new StreamWriter("output.txt")) {
-                if (!string.IsNullOrEmpty(outputFile)) {
-                    string currentDirectory = Directory.GetCurrentDirectory();
-                    string outputPath = Path.Combine(currentDirectory, outputFile);
-                    Console.SetOut(sw);
-                }
-                foreach (String fruit in fruitList) {
-                    Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
-                    switch (format) {
-                        case OutputFormat.User:
-                            Console.WriteLine(FruitInfo?.ToString("US"));
-                            break;
-                        case OutputFormat.Json:
-                            Console.WriteLine(FruitInfo?.ToString("JS"));
-                            break;
-                        default:
-                            Console.WriteLine("Formatting option not recognised!");
-                            return;
-                    }
-                }
-            }
-        }, fruitListArgument, formatOption, outputFileOption);
+        rootCommand.SetHandler(rootCommandHandler,
+            fruitListArgument, formatOption, outputFileOption);
         
     }
 
