@@ -1,5 +1,6 @@
 ﻿using FruityLookup;
 using FruityLookup.Entities;
+using FruityLookup.CLI;
 
 namespace FruityLookup.Tests {
     public class InstanceTests {

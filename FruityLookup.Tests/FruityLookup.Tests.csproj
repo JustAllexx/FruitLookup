@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FruityLookup.CLI\FruityLookup.CLI.csproj" />
     <ProjectReference Include="..\FruityLookup.csproj" />
     <ProjectReference Include="..\FruityLookup\FruityLookup.csproj" />
   </ItemGroup>
