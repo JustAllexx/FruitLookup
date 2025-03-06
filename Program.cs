@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.CommandLine;
 
 using FruityLookup.Entities;
+using System.Runtime.CompilerServices;
 
 namespace FruityLookup;
 
@@ -13,15 +14,15 @@ public enum OutputFormat {
 
 public class FruityLookup {
     readonly HttpClient client = new();
-    readonly String httpsPath = "https://fruityvice.com/api/fruit/";
+    readonly string httpsPath = "https://fruityvice.com/api/fruit/";
 
     public FruityLookup() {
         initialiseClient();
     }
 
-    public async Task<Fruit?> getFruitInformationAsync(String fruitName) {
+    public async Task<Fruit?> getFruitInformationAsync(string fruitName) {
         try {
-            String url = getFruitUrl(fruitName);
+            string url = getFruitUrl(fruitName);
             Stream json = await client.GetStreamAsync(url);
             Fruit? fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
             return fruit;
@@ -52,25 +53,32 @@ public class FruityLookupCLI {
     private readonly static FruityLookup fruity = new();
 
     private static async Task rootCommandHandler(List<string> fruitList, OutputFormat format, string outputFile) {
-        using (StreamWriter sw = new StreamWriter("output.txt")) {
-            if (!string.IsNullOrEmpty(outputFile)) {
-                string currentDirectory = Directory.GetCurrentDirectory();
-                string outputPath = Path.Combine(currentDirectory, outputFile);
-                Console.SetOut(sw);
-            }
-            foreach (String fruit in fruitList) {
-                Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
-                switch (format) {
-                    case OutputFormat.User:
-                        Console.WriteLine(FruitInfo?.ToString("US"));
-                        break;
-                    case OutputFormat.Json:
-                        Console.WriteLine(FruitInfo?.ToString("JS"));
-                        break;
-                    default:
-                        Console.WriteLine("Formatting option not recognised!");
-                        return;
-                }
+        //TextWriter is the most common subclass of Console.Out and StreamWriter
+        //Allows us to reduce duplicated code
+        if (!string.IsNullOrEmpty(outputFile)) {
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string outputPath = Path.Combine(currentDirectory, outputFile);
+            using TextWriter output = new StreamWriter(outputPath);
+            await writeInformationAsync(output, fruitList, format);
+        } else {
+            await writeInformationAsync(Console.Out, fruitList, format);
+        }
+    }
+
+    //Takes in a Writer 
+    private static async Task writeInformationAsync(TextWriter output, List<string> fruitList, OutputFormat format) {
+        foreach (string fruit in fruitList) {
+            Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
+            switch (format) {
+                case OutputFormat.User:
+                    await output.WriteLineAsync(FruitInfo?.ToString("US"));
+                    break;
+                case OutputFormat.Json:
+                    await output.WriteLineAsync(FruitInfo?.ToString("JS"));
+                    break;
+                default:
+                    await output.WriteLineAsync("Formatting option not recognised!");
+                    return;
             }
         }
     }

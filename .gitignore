@@ -4,3 +4,4 @@ obj/
 Properties/
 FruityLookup.Tests/bin/
 FruityLookup.Tetss/obj/
+.editorconfig
