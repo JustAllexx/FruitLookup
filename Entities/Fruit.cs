@@ -3,6 +3,9 @@ using System.Text.Json;
 namespace FruityLookup.Entities;
 
 //Two record classes needed for JSON Deserialisation
+/// <summary>
+/// The nutrition information for fruits, used by the <c>Fruit</c> class
+/// </summary>
 public record class Nutrition {
     public int calories { get; init; }
     public double fat { get; init; }
@@ -11,14 +14,22 @@ public record class Nutrition {
     public double protein { get; init; }
 }
 
+/// <summary>
+/// The Fruit record stores information about each fruit, such as its name, genus and nutritional information
+/// </summary>
+// IFormattable means it can be used in String formatting $"{fruit:JS}" for JSON
 public record class Fruit : IFormattable {
-    public required String name { get; init; }
+    public required string name { get; init; }
     public required int id { get; init; }
-    public required String family { get; init; }
-    public required String order { get; init; }
-    public required String genus { get; init; }
+    public required string family { get; init; }
+    public required string order { get; init; }
+    public required string genus { get; init; }
     public required Nutrition nutritions { get; init; }
 
+    /// <summary>
+    /// Public function to access the Fruits information in a human readable way
+    /// </summary>
+    /// <returns>String of information</returns>
     public string ToUserString() {
 
         return $"""
@@ -30,11 +41,15 @@ public record class Fruit : IFormattable {
             """;
     }
 
+    /// <summary>
+    /// Convert Fruit Information to JSON String
+    /// </summary>
+    /// <returns>JSON String</returns>
     public string ToJsonString() {
         return JsonSerializer.Serialize(this);
     }
 
-    // IFormattable Fruit methods
+    // IFormattable Fruit method overrides
 
     public override string ToString() {
         return this.ToString("US", CultureInfo.CurrentCulture);

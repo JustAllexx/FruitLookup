@@ -3,23 +3,48 @@ using System.Text.Json;
 using System.CommandLine;
 
 using FruityLookup.Entities;
-using System.Runtime.CompilerServices;
 
 namespace FruityLookup;
 
+/// <summary>
+/// 
+/// </summary>
 public enum OutputFormat {
+    /// <summary>
+    /// Tells FruityLookup to output with a Human Readable Format
+    /// </summary>
     User,
+    /// <summary>
+    /// Tells FruityLookup to output using the Machine-Readable Json Format
+    /// </summary>
     Json
 }
 
+/// <summary>
+/// The <c>FruityLookup</c> class is an interface for interacting with the Fruityvice API inside C#
+/// <example>
+/// To instantiate Fruitylookup
+/// <code>
+/// Fruitylookup fruityLookup = new FruityLookup();
+/// </code>
+/// </example>
+/// </summary>
 public class FruityLookup {
     readonly HttpClient client = new();
     readonly string httpsPath = "https://fruityvice.com/api/fruit/";
 
+    /// <summary>
+    /// FruityLookup constructor instantiates the HTTP client to make requests to FruityVice
+    /// </summary>
     public FruityLookup() {
         initialiseClient();
     }
 
+    /// <summary>
+    /// Requests fruit information from the Fruityvice API and returns the caller an Instantiated Fruit Object
+    /// </summary>
+    /// <param name="fruitName">Name of fruit to query information of</param>
+    /// <returns>Fruit or null</returns>
     public async Task<Fruit?> getFruitInformationAsync(string fruitName) {
         try {
             string url = getFruitUrl(fruitName);
@@ -47,6 +72,13 @@ public class FruityLookup {
     }
 }
 
+/// <summary>
+/// The FruityLookup Command Line interface allows FruityLookup functions to be called from the command line
+/// <example>
+/// For information on how to use the CLI, execute this from the command line
+/// <c>FruityLookup.exe -h</c>
+/// </example>
+/// </summary>
 public class FruityLookupCLI {
 
     private readonly static RootCommand rootCommand = new RootCommand("CLI for accessing fruit information from FruityVice");
@@ -83,7 +115,7 @@ public class FruityLookupCLI {
         }
     }
 
-    public static void buildCommands() {
+    private static void buildCommands() {
         // Creates argument builders for the root command
         var fruitListArgument = new Argument<List<string>>(
             name: "Fruit List",
@@ -113,6 +145,11 @@ public class FruityLookupCLI {
         
     }
 
+    /// <summary>
+    /// Entry point for the Fruity Lookup CLI
+    /// </summary>
+    /// <param name="args">The Command Line arguments to be processed</param>
+    /// <returns></returns>
     public static async Task<int> Main(string[] args) {
         buildCommands();
         await rootCommand.InvokeAsync(args);
