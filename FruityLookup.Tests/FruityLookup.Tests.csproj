@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,8 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FruityLookup.CLI\FruityLookup.CLI.csproj" />
-    <ProjectReference Include="..\FruityLookup.csproj" />
-    <ProjectReference Include="..\FruityLookup\FruityLookup.csproj" />
   </ItemGroup>
 
   <ItemGroup>
