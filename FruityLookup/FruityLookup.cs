@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.CommandLine;
 
 using FruityLookup.Entities;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FruityLookup;
 
@@ -11,11 +12,11 @@ namespace FruityLookup;
 /// </summary>
 public enum OutputFormat {
     /// <summary>
-    /// Tells FruityLookup to output with a Human Readable Format
+    /// Tells FruityLookup to output with a Human Readable Format Containing only Name, Id, Family, Sugar and Carbohydrates
     /// </summary>
     User,
     /// <summary>
-    /// Tells FruityLookup to output using the Machine-Readable Json Format
+    /// Tells FruityLookup to output using the Machine-Readable Json Format Containing all information
     /// </summary>
     Json
 }
@@ -31,12 +32,14 @@ public enum OutputFormat {
 /// </summary>
 public class FruityLookup {
     readonly HttpClient client = new();
+    readonly IMemoryCache cache;
     readonly string httpsPath = "https://fruityvice.com/api/fruit/";
 
     /// <summary>
     /// FruityLookup constructor instantiates the HTTP client to make requests to FruityVice
     /// </summary>
     public FruityLookup() {
+        cache = new MemoryCache(new MemoryCacheOptions());
         initialiseClient();
     }
 
@@ -47,9 +50,19 @@ public class FruityLookup {
     /// <returns>Fruit or null</returns>
     public async Task<Fruit?> getFruitInformationAsync(string fruitName) {
         try {
+
+            if (cache.TryGetValue(fruitName, out Fruit? fruit)) {
+                return fruit;
+            }
+
+
             string url = getFruitUrl(fruitName);
             Stream json = await client.GetStreamAsync(url);
-            Fruit? fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
+            fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
+
+            if (fruit == null) return null;
+            cache.Set<Fruit>(fruitName, fruit);
+
             return fruit;
         }
         catch (HttpRequestException ex) {

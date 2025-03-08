@@ -1,6 +1,7 @@
 ﻿using FruityLookup;
 using FruityLookup.Entities;
 using FruityLookup.CLI;
+using System.Diagnostics;
 
 namespace FruityLookup.Tests {
     public class InstanceTests {
@@ -56,9 +57,14 @@ namespace FruityLookup.Tests {
         private const string input2 = "banana";
         [Fact]
         public async Task getFruitInformationAsync() {
+
+            Stopwatch sw1 = new(), sw2 = new();
+
             //Test that retrieves expected information and deserialises correctly
             Fruit factApple = getAppleFruit();
+            sw1.Start();
             Fruit? apple = await fruityLookup.getFruitInformationAsync(input1);
+            sw1.Stop();
             Assert.NotNull(apple);
             Assert.Equal(factApple, apple);
 
@@ -67,6 +73,13 @@ namespace FruityLookup.Tests {
             Fruit? banana = await fruityLookup.getFruitInformationAsync(input2);
             Assert.NotNull(banana);
             Assert.Equal(factBanana, banana);
+
+            //Test that apple is in cache and is quicker
+            sw2.Start();
+            Fruit? appleCache = await fruityLookup.getFruitInformationAsync(input1);
+            sw2.Stop();
+            Assert.True(sw2.ElapsedMilliseconds < sw1.ElapsedMilliseconds);
+            
         }
 
         private const string expectedOutput1 = """
