@@ -2,6 +2,7 @@
 using FruityLookup.Entities;
 using FruityLookup.CLI;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace FruityLookup.Tests {
     public class InstanceTests {
@@ -92,6 +93,17 @@ namespace FruityLookup.Tests {
             string formatJson = apple.ToString("JS");
             Assert.Equal(directJson, formatJson);
             Assert.Equal(expectedOutput1, directJson);
+        }
+
+        [Fact]
+        public async Task getAllFruits() {
+            List<Fruit> fruits = await fruityLookup.getAllFruitAsync();
+
+            Assert.NotNull(fruits);
+            Assert.NotEmpty(fruits);
+            Assert.Contains<Fruit>(getAppleFruit(), fruits);
+            Assert.Contains<Fruit>(getBananaFruit(), fruits);
+            Assert.Distinct<Fruit>(fruits);
         }
     }
 
