@@ -55,7 +55,6 @@ public class FruityLookup {
                 return fruit;
             }
 
-
             string url = getFruitUrl(fruitName);
             Stream json = await client.GetStreamAsync(url);
             fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
@@ -72,6 +71,10 @@ public class FruityLookup {
         return null;
     }
 
+    /// <summary>
+    /// Returns all the fruits in the FruityVice database
+    /// </summary>
+    /// <returns>All Fruits as a List of Fruits</returns>
     public async Task<List<Fruit>> getAllFruitAsync() {
         string url = getAllFruitUrl();
         Stream json = await client.GetStreamAsync(url);
@@ -81,6 +84,11 @@ public class FruityLookup {
         return fruits;
     }
 
+    /// <summary>
+    /// Returns all the fruits from a certain family
+    /// </summary>
+    /// <param name="family">Which fruit family to query</param>
+    /// <returns>All fruits of the given family as a list</returns>
     public async Task<List<Fruit>> getFruitsFromFamily(string family) {
         string url = getFruitsFromFamilyUrl(family);
         Stream json = await client.GetStreamAsync(url);
