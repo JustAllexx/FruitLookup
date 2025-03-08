@@ -1,8 +1,9 @@
 ﻿using System.Net.Http.Headers;
+using System.Net;
 using System.Text.Json;
-using System.CommandLine;
 
 using FruityLookup.Entities;
+using FruityLookup.Exceptions;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace FruityLookup;
@@ -48,10 +49,11 @@ public class FruityLookup {
     /// </summary>
     /// <param name="fruitName">Name of fruit to query information of</param>
     /// <returns>Fruit or null</returns>
-    public async Task<Fruit?> getFruitInformationAsync(string fruitName) {
+    public async Task<Fruit> getFruitInformationAsync(string fruitName) {
         try {
 
             if (cache.TryGetValue(fruitName, out Fruit? fruit)) {
+                if (fruit == null) throw new FruitNotFound();
                 return fruit;
             }
 
@@ -59,16 +61,19 @@ public class FruityLookup {
             Stream json = await client.GetStreamAsync(url);
             fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
 
-            if (fruit == null) return null;
+            if (fruit == null) throw new FruitNotFound();
             cache.Set<Fruit>(fruitName, fruit);
 
             return fruit;
         }
         catch (HttpRequestException ex) {
-            Console.WriteLine($"Request failed with error code: {ex.StatusCode}");
+            switch (ex.StatusCode) {
+                case HttpStatusCode.NotFound:
+                    throw new FruitNotFound();
+                default:
+                    throw new HttpRequestException(ex.Message);
+            }
         }
-
-        return null;
     }
 
     /// <summary>

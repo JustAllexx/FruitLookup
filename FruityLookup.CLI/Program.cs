@@ -1,4 +1,5 @@
 ﻿using FruityLookup.Entities;
+using FruityLookup.Exceptions;
 using System.CommandLine;
 
 namespace FruityLookup.CLI;
@@ -24,21 +25,21 @@ public class FruityLookupCLI {
             using TextWriter output = new StreamWriter(outputPath);
             foreach (string fruitString in fruitList) {
                 // await writeInformationAsync(output, fruitList, format);
-                Fruit? fruit = await fruity.getFruitInformationAsync(fruitString);
-                if (fruit != null) {
+                try {
+                    Fruit fruit = await fruity.getFruitInformationAsync(fruitString);
                     await writeFruitInformationAsync(fruit, output, format);
-                } else {
-                    await output.WriteAsync(fruitString + " not in FruityVice database");
+                } catch (FruitNotFound) {
+                    await output.WriteLineAsync(fruitString + " not in FruityVice database");
                 }
             }
         } else {
             foreach (string fruitString in fruitList) {
-                Fruit? fruit = await fruity.getFruitInformationAsync(fruitString);
-                if (fruit != null) {
+                try {
+                    Fruit fruit = await fruity.getFruitInformationAsync(fruitString);
                     await writeFruitInformationAsync(fruit, Console.Out, format);
                 }
-                else {
-                    await Console.Out.WriteAsync(fruitString + " not in FruityVice database");
+                catch (FruitNotFound) {
+                    await Console.Out.WriteLineAsync(fruitString + " not in FruityVice database");
                 }
             }
         }

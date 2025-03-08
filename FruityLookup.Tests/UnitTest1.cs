@@ -3,6 +3,7 @@ using FruityLookup.Entities;
 using FruityLookup.CLI;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using FruityLookup.Exceptions;
 
 namespace FruityLookup.Tests {
     public class InstanceTests {
@@ -80,6 +81,16 @@ namespace FruityLookup.Tests {
             Fruit? appleCache = await fruityLookup.getFruitInformationAsync(input1);
             sw2.Stop();
             Assert.True(sw2.ElapsedMilliseconds < sw1.ElapsedMilliseconds);
+            
+        }
+
+        [Fact]
+        public async Task getFruitNotInDatabase() {
+            //Make sure FruitNotFound exception is thrown for bad values
+            await Assert.ThrowsAsync<FruitNotFound>(async () =>
+            {
+                await fruityLookup.getFruitInformationAsync("wineberry");
+            });
             
         }
 
