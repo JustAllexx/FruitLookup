@@ -50,31 +50,33 @@ public class FruityLookup {
     /// <param name="fruitName">Name of fruit to query information of</param>
     /// <returns>Fruit or null</returns>
     public async Task<Fruit> getFruitInformationAsync(string fruitName) {
-        try {
-
-            if (cache.TryGetValue(fruitName, out Fruit? fruit)) {
-                if (fruit == null) throw new FruitNotFound();
-                return fruit;
-            }
-
-            string url = getFruitUrl(fruitName);
-            Stream json = await client.GetStreamAsync(url);
-            fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
-
-            if (fruit == null) throw new FruitNotFound();
-            cache.Set<Fruit>(fruitName, fruit);
-
+        //Check if the fruit isn't already in cache
+        if (cache.TryGetValue(fruitName, out Fruit? fruit)) {
+            //This Should be impossible
+            if (fruit == null) throw new InvalidOperationException("Cached a null fruit inside getFruitInformationAsync");
             return fruit;
         }
-        catch (HttpRequestException ex) {
-            switch (ex.StatusCode) {
-                case HttpStatusCode.NotFound:
-                    throw new FruitNotFound();
-                default:
-                    throw new HttpRequestException(ex.Message);
-            }
+
+        string url = getFruitUrl(fruitName);
+        Stream json;
+        try {
+            json = await client.GetStreamAsync(url);
         }
+        catch (HttpRequestException ex) {
+            throw ex.StatusCode switch
+            {
+                HttpStatusCode.NotFound => new FruitNotFound(), //Fruity Vice sends a 404 when an Fruit is Requested that is not in the database
+                _ => new HttpRequestException(ex.Message),
+            };
+        }
+        fruit = await JsonSerializer.DeserializeAsync<Fruit>(json);
+
+        if (fruit == null) throw new FruitNotFound();
+        cache.Set<Fruit>(fruitName, fruit);
+
+        return fruit;
     }
+    
 
     /// <summary>
     /// Returns all the fruits in the FruityVice database

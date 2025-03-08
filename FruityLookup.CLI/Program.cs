@@ -49,6 +49,9 @@ public class FruityLookupCLI {
         List<Fruit> fruitList = await fruity.getAllFruitAsync();
 
         if (!string.IsNullOrEmpty(outputFile)) {
+            //Get CurrentDirectory returns the Directory of where the executable is being run from
+            //This allows users to do relative addressing from the command line
+            // eg.  ../../output.txt
             string currentDirectory = Directory.GetCurrentDirectory();
             string outputPath = Path.Combine(currentDirectory, outputFile);
             using TextWriter output = new StreamWriter(outputPath);
@@ -130,7 +133,7 @@ public class FruityLookupCLI {
 
         rootCommand.Add(fruitListArgument);
         rootCommand.AddGlobalOption(formatOption);
-        rootCommand.AddOption(outputFileOption);
+        rootCommand.AddGlobalOption(outputFileOption);
 
         rootCommand.AddCommand(familyCommand);
         rootCommand.AddCommand(allCommand);
