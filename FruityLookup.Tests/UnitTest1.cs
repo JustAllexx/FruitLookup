@@ -105,6 +105,18 @@ namespace FruityLookup.Tests {
             Assert.Contains<Fruit>(getBananaFruit(), fruits);
             Assert.Distinct<Fruit>(fruits);
         }
+
+        private const string input3 = "rosaceae";
+        [Fact]
+        public async Task getFruitsFromFamily() {
+            List<Fruit> fruits = await fruityLookup.getFruitsFromFamily(input3);
+
+            Assert.NotNull(fruits);
+            Assert.NotEmpty(fruits);
+            Assert.Contains<Fruit>(getAppleFruit(), fruits);
+            Assert.DoesNotContain<Fruit>(getBananaFruit(), fruits);
+            Assert.Distinct<Fruit>(fruits);
+        }
     }
 
     public class CLITests {

@@ -22,27 +22,63 @@ public class FruityLookupCLI {
             string currentDirectory = Directory.GetCurrentDirectory();
             string outputPath = Path.Combine(currentDirectory, outputFile);
             using TextWriter output = new StreamWriter(outputPath);
-            await writeInformationAsync(output, fruitList, format);
+            foreach (string fruitString in fruitList) {
+                // await writeInformationAsync(output, fruitList, format);
+                Fruit? fruit = await fruity.getFruitInformationAsync(fruitString);
+                if (fruit != null) {
+                    await writeFruitInformationAsync(fruit, output, format);
+                } else {
+                    await output.WriteAsync(fruitString + " not in FruityVice database");
+                }
+            }
         } else {
-            await writeInformationAsync(Console.Out, fruitList, format);
+            foreach (string fruitString in fruitList) {
+                Fruit? fruit = await fruity.getFruitInformationAsync(fruitString);
+                if (fruit != null) {
+                    await writeFruitInformationAsync(fruit, Console.Out, format);
+                }
+                else {
+                    await Console.Out.WriteAsync(fruitString + " not in FruityVice database");
+                }
+            }
         }
     }
 
-    //Takes in a Writer 
-    private static async Task writeInformationAsync(TextWriter output, List<string> fruitList, OutputFormat format) {
-        foreach (string fruit in fruitList) {
-            Fruit? FruitInfo = await fruity.getFruitInformationAsync(fruit);
-            switch (format) {
-                case OutputFormat.User:
-                    await output.WriteLineAsync(FruitInfo?.ToString("US"));
-                    break;
-                case OutputFormat.Json:
-                    await output.WriteLineAsync(FruitInfo?.ToString("JS"));
-                    break;
-                default:
-                    await output.WriteLineAsync("Formatting option not recognised!");
-                    return;
+    private static async Task familyCommandHandler(string familyName, OutputFormat format, string outputFile) {
+        List<Fruit> fruitList = await fruity.getFruitsFromFamily(familyName);
+        
+        if (!string.IsNullOrEmpty(outputFile)) {
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string outputPath = Path.Combine(currentDirectory, outputFile);
+            using TextWriter output = new StreamWriter(outputPath);
+
+            foreach (Fruit fruit in fruitList) {
+                // await writeInformationAsync(output, fruitList, format);
+                if (fruit != null) {
+                    await writeFruitInformationAsync(fruit, output, format);
+                }
             }
+        }
+        else {
+            foreach (Fruit fruit in fruitList) {
+                if (fruit != null) {
+                    await writeFruitInformationAsync(fruit, Console.Out, format);
+                }
+            }
+        }
+    }
+
+    private static async Task writeFruitInformationAsync(Fruit fruit, TextWriter output, OutputFormat format) {        
+        switch (format) {
+            case OutputFormat.User:
+                await output.WriteLineAsync(fruit.ToString("US"));
+                break;
+            case OutputFormat.Json:
+                await output.WriteLineAsync(fruit.ToString("JS"));
+                break;
+            default:
+                await output.WriteLineAsync("Formatting option not recognised!");
+                return;
         }
     }
 
@@ -68,9 +104,17 @@ public class FruityLookupCLI {
         );
         outputFileOption.AddAlias("-o");
 
+        var familyCommand = new Command("family", "Gets all fruits belonging to a specific family");
+        var familyArgument = new Argument<string>("family", "What family of fruits to collect");
+        familyCommand.AddArgument(familyArgument);
+        familyCommand.SetHandler(familyCommandHandler, familyArgument, formatOption, outputFileOption);
+
         rootCommand.Add(fruitListArgument);
         rootCommand.AddGlobalOption(formatOption);
         rootCommand.AddOption(outputFileOption);
+
+        rootCommand.AddCommand(familyCommand);
+
         rootCommand.SetHandler(rootCommandHandler,
             fruitListArgument, formatOption, outputFileOption);
         

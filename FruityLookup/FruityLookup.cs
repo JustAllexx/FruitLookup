@@ -81,6 +81,15 @@ public class FruityLookup {
         return fruits;
     }
 
+    public async Task<List<Fruit>> getFruitsFromFamily(string family) {
+        string url = getFruitsFromFamilyUrl(family);
+        Stream json = await client.GetStreamAsync(url);
+        List<Fruit>? fruits = await JsonSerializer.DeserializeAsync<List<Fruit>>(json);
+        if (fruits == null) return [];
+
+        return fruits;
+    }
+
     private void initialiseClient() {
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(
@@ -95,5 +104,9 @@ public class FruityLookup {
 
     private string getAllFruitUrl() {
         return httpsPath + "all";
+    }
+
+    private string getFruitsFromFamilyUrl(string family) {
+        return httpsPath + "family/" + family;
     }
 }

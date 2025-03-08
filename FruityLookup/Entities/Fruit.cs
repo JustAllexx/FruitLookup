@@ -38,6 +38,7 @@ public record class Fruit : IFormattable {
             Family: {family}
             Sugar: {nutritions.sugar}g
             Carbohydrates: {nutritions.carbohydrates}g
+
             """;
     }
 
