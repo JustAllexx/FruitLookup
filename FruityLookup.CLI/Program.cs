@@ -45,6 +45,21 @@ public class FruityLookupCLI {
         }
     }
 
+    private static async Task allCommandHandler(OutputFormat format, string outputFile) {
+        List<Fruit> fruitList = await fruity.getAllFruitAsync();
+
+        if (!string.IsNullOrEmpty(outputFile)) {
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string outputPath = Path.Combine(currentDirectory, outputFile);
+            using TextWriter output = new StreamWriter(outputPath);
+
+            await writeFruitInformationAsync(fruitList, output, format);
+        }
+        else {
+            await writeFruitInformationAsync(fruitList, Console.Out, format);
+        }
+    }
+
     private static async Task familyCommandHandler(string familyName, OutputFormat format, string outputFile) {
         List<Fruit> fruitList = await fruity.getFruitsFromFamily(familyName);
         
@@ -53,18 +68,18 @@ public class FruityLookupCLI {
             string outputPath = Path.Combine(currentDirectory, outputFile);
             using TextWriter output = new StreamWriter(outputPath);
 
-            foreach (Fruit fruit in fruitList) {
-                // await writeInformationAsync(output, fruitList, format);
-                if (fruit != null) {
-                    await writeFruitInformationAsync(fruit, output, format);
-                }
-            }
+            await writeFruitInformationAsync(fruitList, output, format);
         }
         else {
-            foreach (Fruit fruit in fruitList) {
-                if (fruit != null) {
-                    await writeFruitInformationAsync(fruit, Console.Out, format);
-                }
+            await writeFruitInformationAsync(fruitList, Console.Out, format);
+        }
+    }
+
+    private static async Task writeFruitInformationAsync(List<Fruit> fruits, TextWriter output, OutputFormat format) {
+        foreach (Fruit fruit in fruits) {
+            // await writeInformationAsync(output, fruitList, format);
+            if (fruit != null) {
+                await writeFruitInformationAsync(fruit, output, format);
             }
         }
     }
@@ -110,11 +125,15 @@ public class FruityLookupCLI {
         familyCommand.AddArgument(familyArgument);
         familyCommand.SetHandler(familyCommandHandler, familyArgument, formatOption, outputFileOption);
 
+        var allCommand = new Command("all", "Gets all the fruits in the fruityvice database");
+        allCommand.SetHandler(allCommandHandler, formatOption, outputFileOption);
+
         rootCommand.Add(fruitListArgument);
         rootCommand.AddGlobalOption(formatOption);
         rootCommand.AddOption(outputFileOption);
 
         rootCommand.AddCommand(familyCommand);
+        rootCommand.AddCommand(allCommand);
 
         rootCommand.SetHandler(rootCommandHandler,
             fruitListArgument, formatOption, outputFileOption);
