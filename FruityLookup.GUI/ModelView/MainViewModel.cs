@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FruityLookup.Entities;
-using System.Threading.Tasks;
 
 namespace FruityLookup.GUI.ModelView;
 
