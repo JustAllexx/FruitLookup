@@ -16,5 +16,8 @@ Fruity Lookup is a library package that interacts with the FruityVice rest API e
 **To output the fruit information to a file**\
 `FruityLookupCLI.exe apple --output apple.txt`
 
+**See more commands with**\
+`FruityLookupCLI.exe -h`
+
 ## Fruity Lookup GUI
 Fruity Lookup comes packaged with a .NET MAUI App to interface with the Fruity Lookup Library
