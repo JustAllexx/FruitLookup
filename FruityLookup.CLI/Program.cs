@@ -15,7 +15,6 @@ public class FruityLookupCLI {
 
     private readonly static RootCommand rootCommand = new RootCommand("CLI for accessing fruit information from FruityVice");
     private readonly static FruityLookup fruity = new();
-
     private static async Task rootCommandHandler(List<string> fruitList, OutputFormat format, string outputFile) {
         //TextWriter is the most common subclass of Console.Out and StreamWriter
         //Allows us to reduce duplicated code
@@ -26,7 +25,8 @@ public class FruityLookupCLI {
             foreach (string fruitString in fruitList) {
                 // await writeInformationAsync(output, fruitList, format);
                 try {
-                    Fruit fruit = await fruity.getFruitInformationAsync(fruitString);
+                    Fruit? fruit = await fruity.getFruitInformationAsync(fruitString);
+                    if (fruit == null) continue;
                     await writeFruitInformationAsync(fruit, output, format);
                 } catch (FruitNotFound) {
                     await output.WriteLineAsync(fruitString + " not in FruityVice database");
@@ -35,7 +35,8 @@ public class FruityLookupCLI {
         } else {
             foreach (string fruitString in fruitList) {
                 try {
-                    Fruit fruit = await fruity.getFruitInformationAsync(fruitString);
+                    Fruit? fruit = await fruity.getFruitInformationAsync(fruitString);
+                    if (fruit == null) continue;
                     await writeFruitInformationAsync(fruit, Console.Out, format);
                 }
                 catch (FruitNotFound) {
