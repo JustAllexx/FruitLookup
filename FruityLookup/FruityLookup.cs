@@ -138,7 +138,22 @@ public class FruityLookup {
     public async Task<List<Fruit>> getFruitsFromFamily(string family) {
         logger.LogInformation($"Accessing all the fruits in the `{family}` family");
         string url = getFruitsFromFamilyUrl(family);
-        Stream json = await client.GetStreamAsync(url);
+        Stream json;
+        try {
+            json = await client.GetStreamAsync(url);
+        } catch (HttpRequestException err) {
+            switch (err.StatusCode) {
+                case HttpStatusCode.NotFound:
+                    logger.LogWarning("The {family} family could not be found on the fruityVice database", family);
+                    return []; //return empty list
+                case HttpStatusCode.InternalServerError:
+                    logger.LogError("FruityVice is not available because of an internal server error");
+                    return []; //Should'nt fail program return empty list
+                default:
+                    logger.LogError("Something went wrong requesting fruits of family `{family}`", family);
+                    return [];
+            }
+        }
         List<Fruit>? fruits = await JsonSerializer.DeserializeAsync<List<Fruit>>(json);
         if (fruits == null) return [];
 
