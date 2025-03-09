@@ -128,6 +128,15 @@ namespace FruityLookup.Tests {
             Assert.DoesNotContain<Fruit>(getBananaFruit(), fruits);
             Assert.Distinct<Fruit>(fruits);
         }
+
+        private const string input4 = "all";
+        [Fact]
+        public async Task allShouldNotThrowError() {
+            await Assert.ThrowsAsync<FruitNotFound>(async () =>
+            {
+                await fruityLookup.getFruitInformationAsync(input4);
+            });
+        }
     }
 
     public class CLITests {

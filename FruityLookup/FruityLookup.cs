@@ -81,6 +81,9 @@ public class FruityLookup {
             return fruit;
         }
 
+        //Fruityvice accepts keywords like sugar and family to allow you to do queries, this breaks the JSON deserialiser as it returns a list
+        if (checkQueryKeyword(fruitName)) throw new FruitNotFound();
+
         string url = getFruitUrl(fruitName);
         Stream json;
         try {
@@ -148,7 +151,7 @@ public class FruityLookup {
                     return []; //return empty list
                 case HttpStatusCode.InternalServerError:
                     logger.LogError("FruityVice is not available because of an internal server error");
-                    return []; //Should'nt fail program return empty list
+                    return []; //Shouldn't fail program return empty list
                 default:
                     logger.LogError("Something went wrong requesting fruits of family `{family}`", family);
                     return [];
@@ -158,6 +161,15 @@ public class FruityLookup {
         if (fruits == null) return [];
 
         return fruits;
+    }
+
+    //The API also accepts keywords such as all, family, nutrition
+    private static bool checkQueryKeyword(string keyword) {
+        return keyword.ToLower() switch
+        {   //All the listed accepted fields for fruityvice
+            "all" or "family" or "genus" or "order" or "nutritions" or "carbohydrates" or "protein" or "fat" or "calories" or "sugar" => true,
+            _ => false,
+        };
     }
 
     private void initialiseClient() {
